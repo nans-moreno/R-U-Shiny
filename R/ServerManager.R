@@ -1,3 +1,4 @@
+library(tibble)
 # =============================================================================
 # SERVER MANAGER - Classe pour la logique serveur
 # =============================================================================
@@ -193,10 +194,10 @@ ServerManager <- R6Class(
     create_comparison_functionality = function(filtered_data, input, output, session) {
       
       # Mise à jour des choix dans le comparateur
-      observe({
+       observe({
         food_choices <- filtered_data() %>%
           select(Food_ID, Food_Name) %>%
-          deframe()
+          { setNames(.$Food_ID, .$Food_Name) }
         
         updateSelectizeInput(session, "food1", 
                             choices = food_choices, 
@@ -294,7 +295,7 @@ ServerManager <- R6Class(
         # Message de bienvenue
         showNotification(
           "🎉 Dashboard nutritionnel chargé avec succès!", 
-          type = "success",
+          type = "message",
           duration = 3
         )
       }

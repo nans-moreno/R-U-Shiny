@@ -4,22 +4,22 @@
 
 fluidRow(
   box(
-    title = tags$span(icon("scatter-chart"), " Corrélation Protéines vs Calories"),
+   title = tags$span(icon("chart-bar"), " Corrélation Protéines vs Calories"),
     status = "primary", 
     solidHeader = TRUE,
     width = 8,
     height = 500,
     plotlyOutput("protein_calories_scatter")
-  ),
+  ), # <-- Virgule ici, parenthèse bien placée
   box(
     title = tags$span(icon("table"), " Statistiques Résumées"),
-    status = "info", 
+    status = "info",
     solidHeader = TRUE,
     width = 4,
     height = 500,
     tableOutput("summary_stats")
   )
-),
+)
 
 fluidRow(
   box(

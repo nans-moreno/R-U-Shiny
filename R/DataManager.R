@@ -31,6 +31,9 @@ DataManager <- R6Class(
     
     #' Chargement des données brutes
     load_data = function() {
+      if (!file.exists(private$.file_path)) {
+        stop(glue("❌ Fichier introuvable: {private$.file_path}"))
+      }
       tryCatch({
         cat("📥 Chargement des données depuis:", private$.file_path, "\n")
         private$.raw_data <- read_csv(private$.file_path, show_col_types = FALSE)

@@ -8,3 +8,19 @@ Dashboard interactif développé en R Shiny pour l'analyse de données nutrition
 
 ## 🏗️ Architecture
 
+
+## 🚀 Installation et Lancement
+
+1. **Cloner le projet**
+```bash
+git clone [votre-repo]
+cd Projet_R_2_NOM
+
+2. Installer les dépendances
+
+source("requirements.R")
+
+
+3. Lancer l'application
+
+source("app.R")

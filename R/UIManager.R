@@ -78,7 +78,7 @@ UIManager <- R6Class(
     create_header = function() {
       dashboardHeader(
         title = tags$span(
-          icon("nutrition", style = "margin-right: 10px;"),
+          icon("utensils", style = "margin-right: 10px;"),
           "Dashboard Nutritionnel Interactif",
           style = "font-size: 18px; font-weight: bold;"
         )

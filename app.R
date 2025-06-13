@@ -4,6 +4,7 @@
 
 # Chargement des dépendances
 source("requirements.R")
+library(tibble)
 
 # Chargement des modules et classes
 source("R/utils.R")
