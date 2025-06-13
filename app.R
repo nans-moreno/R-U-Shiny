@@ -6,10 +6,10 @@
 source("requirements.R")
 
 # Chargement des modules et classes
-source("Projet_R_U_SHINY/R/utils.R")
-source("Projet_R_U_SHINY/R/utils.R")
-source("Projet_R_U_SHINY/R/UIManager.R") 
-source("Projet_R_U_SHINY/R/ServerManager.R")
+source("R/utils.R")
+source("R/DataManager.R")
+source("R/UIManager.R") 
+source("R/ServerManager.R")
 
 # =============================================================================
 # INITIALISATION DES OBJETS
