@@ -8,7 +8,14 @@ fluidRow(
     status = "primary", 
     solidHeader = TRUE,
     width = 12,
-    
+
+    # Ajout d'une zone de texte pour la recherche personnalisée
+    fluidRow(
+      column(12,
+        textInput("food_search", "Recherche rapide d'aliment :", placeholder = "Tapez un nom d'aliment")
+      )
+    ),
+
     fluidRow(
       column(6,
         selectizeInput("food1", 
@@ -16,7 +23,7 @@ fluidRow(
                       choices = NULL,
                       options = list(
                         placeholder = "Tapez pour rechercher...",
-                        maxOptions = 100
+                        maxOptions = 1000
                       ))
       ),
       column(6,
@@ -25,7 +32,7 @@ fluidRow(
                       choices = NULL,
                       options = list(
                         placeholder = "Tapez pour rechercher...",
-                        maxOptions = 100
+                        maxOptions = 1000
                       ))
       )
     ),

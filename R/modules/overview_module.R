@@ -37,3 +37,21 @@ fluidRow(
     DT::dataTableOutput("top_calories_table")
   )
 )
+
+fluidRow(
+  box(
+    title = tags$span(icon("table"), " Tableau Complet des Aliments"),
+    status = "info",
+    solidHeader = TRUE,
+    width = 12,
+    shinyWidgets::pickerInput(
+      inputId = "overview_columns_to_show",
+      label = "Colonnes à afficher :",
+      choices = c("Food_Name", "Calories", "Protein_g", "Fat_g", "Carbs_g", "Fiber_g", "Sugar_g", "Calcium_mg", "Iron_mg", "VitC_mg", "Food_Category", "Calorie_Level", "Protein_Ratio", "Fat_Ratio", "Carbs_Ratio"),
+      selected = c("Food_Name", "Calories", "Protein_g", "Fat_g", "Carbs_g", "Food_Category"),
+      multiple = TRUE,
+      options = shinyWidgets::pickerOptions(actionsBox = TRUE, liveSearch = TRUE)
+    ),
+    DT::dataTableOutput("overview_full_table")
+  )
+)

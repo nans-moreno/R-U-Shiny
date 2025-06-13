@@ -78,7 +78,7 @@ ServerManager <- R6Class(
     },
     
     #' Graphiques de la vue d'ensemble
-    create_overview_plots = function(filtered_data, output) {
+    create_overview_plots = function(filtered_data, output, input) {
       
       # Distribution des calories
       output$calorie_dist <- renderPlotly({
@@ -133,10 +133,30 @@ ServerManager <- R6Class(
           ) %>%
           DT::formatRound(columns = c("Calories", "Protein_g", "Fat_g"), digits = 1)
       })
+      
+      # Tableau complet avec sélection de colonnes
+      output$overview_full_table <- DT::renderDataTable({
+        data <- private$.data_manager$get_clean_data()
+        cols <- input$overview_columns_to_show
+        if (is.null(cols) || length(cols) == 0) {
+          cols <- names(data)
+        }
+        data <- data[, cols, drop = FALSE]
+        DT::datatable(
+          data,
+          options = list(
+            pageLength = 15,
+            scrollX = TRUE,
+            searching = TRUE
+          ),
+          filter = 'top',
+          rownames = FALSE
+        )
+      })
     },
     
     #' Graphiques de l'analyse détaillée
-    create_analysis_plots = function(filtered_data, output) {
+    create_analysis_plots = function(filtered_data, output, input) {
       
       # Corrélation Protéines vs Calories
       output$protein_calories_scatter <- renderPlotly({
@@ -174,19 +194,24 @@ ServerManager <- R6Class(
       
       # Tableau filtré
       output$filtered_table <- DT::renderDataTable({
-        filtered_data() %>%
-          select(Food_Name, Calories, Protein_g, Fat_g, Carbs_g, Food_Category) %>%
-          DT::datatable(
-            options = list(
-              pageLength = 15, 
-              scrollX = TRUE,
-              searching = TRUE
-            ),
-            filter = 'top',
-            rownames = FALSE,
-            colnames = c("Aliment", "Calories", "Protéines (g)", "Lipides (g)", "Glucides (g)", "Catégorie")
-          ) %>%
-          DT::formatRound(columns = c("Calories", "Protein_g", "Fat_g", "Carbs_g"), digits = 1)
+        data <- filtered_data()
+        cols <- input$columns_to_show
+        if (is.null(cols) || length(cols) == 0) {
+          cols <- names(data) # Affiche tout si rien sélectionné
+        }
+        data <- data[, cols, drop = FALSE]
+        DT::datatable(
+          data,
+          options = list(
+            pageLength = 15, 
+            scrollX = TRUE,
+            searching = TRUE,
+            placeholder = "Tapez pour rechercher...",
+            maxOptions = 100
+          ),
+          filter = 'top',
+          rownames = FALSE
+        )
       })
     },
     
@@ -195,17 +220,17 @@ ServerManager <- R6Class(
       
       # Mise à jour des choix dans le comparateur
        observe({
-        food_choices <- filtered_data() %>%
-          select(Food_ID, Food_Name) %>%
-          { setNames(.$Food_ID, .$Food_Name) }
-        
-        updateSelectizeInput(session, "food1", 
-                            choices = food_choices, 
-                            server = TRUE)
-        updateSelectizeInput(session, "food2", 
-                            choices = food_choices, 
-                            server = TRUE)
-      })
+  all_foods <- private$.data_manager$get_clean_data()
+  # Force Food_ID en caractère pour éviter les soucis de recherche
+  food_choices <- setNames(as.character(all_foods$Food_ID), all_foods$Food_Name)
+
+  updateSelectizeInput(session, "food1", 
+                      choices = food_choices, 
+                      server = TRUE)
+  updateSelectizeInput(session, "food2", 
+                      choices = food_choices, 
+                      server = TRUE)
+})
       
       # Graphique radar de comparaison
       output$comparison_radar <- renderPlotly({
@@ -284,10 +309,10 @@ ServerManager <- R6Class(
         self$create_value_boxes(filtered_data, output)
         
         # Graphiques vue d'ensemble
-        self$create_overview_plots(filtered_data, output)
+       self$create_overview_plots(filtered_data, output, input)
         
         # Graphiques analyse détaillée
-        self$create_analysis_plots(filtered_data, output)
+        self$create_analysis_plots(filtered_data, output, input)
         
         # Comparateur
         self$create_comparison_functionality(filtered_data, input, output, session)

@@ -108,11 +108,8 @@ DataManager <- R6Class(
     
     #' Obtenir les données nettoyées
     get_clean_data = function() {
-      if (is.null(private$.clean_data)) {
-        stop("❌ Veuillez d'abord nettoyer les données avec clean_data()")
-      }
-      return(private$.clean_data)
-    },
+  return(private$.clean_data)
+},
     
     #' Filtrage des données selon critères
     #' @param category Catégorie alimentaire
