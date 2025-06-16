@@ -23,4 +23,4 @@ source("requirements.R")
 
 3. Lancer l'application
 
-source("app.R")
+shiny::runApp()

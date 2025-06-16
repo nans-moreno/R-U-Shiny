@@ -234,48 +234,49 @@ ServerManager <- R6Class(
       
       # Graphique radar de comparaison
       output$comparison_radar <- renderPlotly({
-        if(!is.null(input$food1) && !is.null(input$food2) && 
-           input$food1 != input$food2) {
-          
+        req(input$food1, input$food2, input$compare_vars)
+        if (input$food1 != input$food2) {
           all_data <- private$.data_manager$get_clean_data()
           food1_data <- all_data %>% filter(Food_ID == input$food1)
           food2_data <- all_data %>% filter(Food_ID == input$food2)
-          
-          if(nrow(food1_data) > 0 && nrow(food2_data) > 0) {
-            
+          vars <- input$compare_vars
+          if (length(vars) > 0 && nrow(food1_data) > 0 && nrow(food2_data) > 0) {
             # Préparation des données pour le radar
-            comparison_data <- data.frame(
-              Metric = c("Calories (/10)", "Protéines", "Lipides", "Glucides", "Fibres"),
-              Food1 = c(
-                round(food1_data$Calories / 10, 1),
-                round(food1_data$Protein_g, 1),
-                round(food1_data$Fat_g, 1),
-                round(food1_data$Carbs_g, 1),
-                round(coalesce(food1_data$Fiber_g, 0), 1)
-              ),
-              Food2 = c(
-                round(food2_data$Calories / 10, 1),
-                round(food2_data$Protein_g, 1),
-                round(food2_data$Fat_g, 1),
-                round(food2_data$Carbs_g, 1),
-                round(coalesce(food2_data$Fiber_g, 0), 1)
-              )
+            metric_labels <- c(
+              Calories = "Calories (/10)",
+              Protein_g = "Protéines",
+              Fat_g = "Lipides",
+              Carbs_g = "Glucides",
+              Fiber_g = "Fibres",
+              Sugar_g = "Sucres",
+              Calcium_mg = "Calcium",
+              Iron_mg = "Fer",
+              VitC_mg = "Vitamine C"
             )
-            
+            food1_vals <- sapply(vars, function(v) {
+              val <- food1_data[[v]]
+              if (v == "Calories") val <- val / 10
+              ifelse(is.na(val), 0, val)
+            })
+            food2_vals <- sapply(vars, function(v) {
+              val <- food2_data[[v]]
+              if (v == "Calories") val <- val / 10
+              ifelse(is.na(val), 0, val)
+            })
             plot_ly(
               type = 'scatterpolar',
               mode = 'lines+markers'
             ) %>%
               add_trace(
-                r = comparison_data$Food1,
-                theta = comparison_data$Metric,
+                r = as.numeric(food1_vals),
+                theta = metric_labels[vars],
                 name = food1_data$Food_Name,
                 line = list(color = '#1f77b4', width = 3),
                 marker = list(size = 8)
               ) %>%
               add_trace(
-                r = comparison_data$Food2,
-                theta = comparison_data$Metric,
+                r = as.numeric(food2_vals),
+                theta = metric_labels[vars],
                 name = food2_data$Food_Name,
                 line = list(color = '#ff7f0e', width = 3),
                 marker = list(size = 8)
@@ -284,10 +285,57 @@ ServerManager <- R6Class(
                 polar = list(
                   radialaxis = list(
                     visible = TRUE, 
-                    range = c(0, max(c(comparison_data$Food1, comparison_data$Food2)) * 1.1)
+                    range = c(0, max(c(food1_vals, food2_vals)) * 1.1)
                   )
                 ),
                 title = list(text = "Comparaison Nutritionnelle", font = list(size = 16)),
+                legend = list(orientation = "h", x = 0.5, xanchor = 'center')
+              )
+          }
+        }
+      })
+      
+      # Graphique en barres de comparaison
+      output$comparison_barplot <- renderPlotly({
+        req(input$food1, input$food2, input$compare_vars)
+        if (input$food1 != input$food2) {
+          all_data <- private$.data_manager$get_clean_data()
+          food1_data <- all_data %>% filter(Food_ID == input$food1)
+          food2_data <- all_data %>% filter(Food_ID == input$food2)
+          vars <- input$compare_vars
+          if (length(vars) > 0 && nrow(food1_data) > 0 && nrow(food2_data) > 0) {
+            metric_labels <- c(
+              Calories = "Calories (/10)",
+              Protein_g = "Protéines",
+              Fat_g = "Lipides",
+              Carbs_g = "Glucides",
+              Fiber_g = "Fibres",
+              Sugar_g = "Sucres",
+              Calcium_mg = "Calcium",
+              Iron_mg = "Fer",
+              VitC_mg = "Vitamine C"
+            )
+            food1_vals <- sapply(vars, function(v) {
+              val <- food1_data[[v]]
+              if (v == "Calories") val <- val / 10
+              ifelse(is.na(val), 0, val)
+            })
+            food2_vals <- sapply(vars, function(v) {
+              val <- food2_data[[v]]
+              if (v == "Calories") val <- val / 10
+              ifelse(is.na(val), 0, val)
+            })
+            df <- data.frame(
+              Variable = metric_labels[vars],
+              Aliment1 = as.numeric(food1_vals),
+              Aliment2 = as.numeric(food2_vals)
+            )
+            plot_ly(df, x = ~Variable, y = ~Aliment1, type = 'bar', name = food1_data$Food_Name, marker = list(color = '#1f77b4')) %>%
+              add_trace(y = ~Aliment2, name = food2_data$Food_Name, marker = list(color = '#ff7f0e')) %>%
+              layout(
+                barmode = 'group',
+                title = list(text = "Comparaison par Variable", font = list(size = 16)),
+                yaxis = list(title = "Valeur"),
                 legend = list(orientation = "h", x = 0.5, xanchor = 'center')
               )
           }
